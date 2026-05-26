@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Anmol Kumar | Portfolio</title>
 <link rel="icon" type="image/png" href="https://avatars.githubusercontent.com/anmol2010kumar18-bot">
-<link rel="apple-touch-icon" href="https://avatars.githubusercontent.com/anmol2010kumar18-bot">
+<link rel="apple-touch-icon" href="https://avatars.githubusercontent.com/u/anmol2010kumar18-bot?v=4&s=180">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
@@ -259,10 +259,207 @@ footer a{color:var(--cyan);text-decoration:none;}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 
+/* ── NAME GLITCH ── */
+.glitch{position:relative;display:inline-block;}
+.glitch::before,.glitch::after{
+  content:attr(data-text);
+  position:absolute;top:0;left:0;
+  width:100%;height:100%;
+  font-family:inherit;font-size:inherit;font-weight:inherit;
+  background:transparent;
+}
+.glitch::before{
+  color:var(--cyan);
+  clip-path:polygon(0 20%,100% 20%,100% 40%,0 40%);
+  animation:glitchTop 5s infinite 2s;
+  text-shadow:2px 0 rgba(0,245,255,.7);
+}
+.glitch::after{
+  color:var(--mag);
+  clip-path:polygon(0 60%,100% 60%,100% 80%,0 80%);
+  animation:glitchBot 5s infinite 2.15s;
+  text-shadow:-2px 0 rgba(255,45,120,.7);
+}
+@keyframes glitchTop{
+  0%,90%{transform:translateX(0);opacity:0}
+  91%{transform:translateX(-5px);opacity:1}
+  93%{transform:translateX(4px);opacity:.8}
+  95%{transform:translateX(-3px);opacity:1}
+  97%{transform:translateX(0);opacity:0}
+  100%{opacity:0}
+}
+@keyframes glitchBot{
+  0%,90%{transform:translateX(0);opacity:0}
+  91%{transform:translateX(5px);opacity:1}
+  93%{transform:translateX(-4px);opacity:.8}
+  95%{transform:translateX(3px);opacity:1}
+  97%{transform:translateX(0);opacity:0}
+  100%{opacity:0}
+}
+
+/* ====== PROGRESSIVE LOADER ====== */
+#loader{
+  position:fixed;inset:0;z-index:99999;overflow:hidden;
+  background:var(--dark);
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity .9s cubic-bezier(.77,0,.18,1), transform .9s cubic-bezier(.77,0,.18,1);
+}
+#loader.hide{opacity:0;transform:scale(1.04);pointer-events:none;}
+
+/* animated grid */
+#loader-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,245,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(0,245,255,.045) 1px,transparent 1px);background-size:60px 60px;animation:gridDrift 8s linear infinite;}
+@keyframes gridDrift{from{background-position:0 0}to{background-position:60px 60px}}
+
+/* scanlines */
+#loader-scan{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px);pointer-events:none;}
+
+/* sweeping light beam */
+#loader-beam{position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,245,255,.04),transparent);animation:beamSweep 3s ease-in-out infinite;}
+@keyframes beamSweep{0%{left:-60%}100%{left:120%}}
+
+/* radial glow center */
+#loader-glow{position:absolute;inset:0;background:radial-gradient(ellipse 55% 45% at 50% 50%,rgba(0,245,255,.07) 0%,rgba(255,45,120,.04) 50%,transparent 75%);animation:glowPulse 2.5s ease-in-out infinite;}
+@keyframes glowPulse{0%,100%{opacity:.6}50%{opacity:1}}
+
+/* corner brackets */
+.lc{position:absolute;width:40px;height:40px;border-color:rgba(0,245,255,.5);border-style:solid;}
+.lc.tl{top:28px;left:28px;border-width:2px 0 0 2px;animation:cornerPop .4s .1s both;}
+.lc.tr{top:28px;right:28px;border-width:2px 2px 0 0;animation:cornerPop .4s .2s both;}
+.lc.bl{bottom:28px;left:28px;border-width:0 0 2px 2px;animation:cornerPop .4s .3s both;}
+.lc.br{bottom:28px;right:28px;border-width:0 2px 2px 0;animation:cornerPop .4s .4s both;}
+@keyframes cornerPop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+
+/* corner labels */
+.lc-label{position:absolute;font-family:'Share Tech Mono',monospace;font-size:.55rem;color:rgba(0,245,255,.4);letter-spacing:.15em;}
+.lc-label.tl{top:36px;left:76px;}
+.lc-label.br{bottom:36px;right:76px;}
+
+/* ── MAIN CONTENT ── */
+#loader-inner{
+  position:relative;z-index:2;
+  display:flex;flex-direction:column;align-items:center;
+  gap:0;
+}
+
+/* ring canvas */
+#lring{display:block;margin-bottom:28px;}
+
+/* symbol inside ring */
+#loader-sym{
+  position:absolute;
+  font-family:'Orbitron',monospace;font-size:1.6rem;font-weight:900;
+  color:var(--cyan);letter-spacing:.05em;
+  text-shadow:0 0 20px rgba(0,245,255,.8),0 0 50px rgba(0,245,255,.4);
+  top:50%;left:50%;transform:translate(-50%,-58%);
+  animation:symPulse 2s ease-in-out infinite;
+}
+@keyframes symPulse{0%,100%{text-shadow:0 0 20px rgba(0,245,255,.8),0 0 50px rgba(0,245,255,.3)}50%{text-shadow:0 0 35px rgba(0,245,255,1),0 0 80px rgba(0,245,255,.6),0 0 120px rgba(0,245,255,.2)}}
+
+/* glitch layer */
+#loader-sym::after{
+  content:'</>';position:absolute;top:0;left:0;width:100%;
+  color:var(--mag);
+  clip-path:polygon(0 35%,100% 35%,100% 65%,0 65%);
+  animation:symGlitch 4s infinite 1.2s;
+  text-shadow:0 0 15px rgba(255,45,120,.8);
+}
+@keyframes symGlitch{0%,91%{transform:translateX(0);opacity:0}92%{transform:translateX(-6px);opacity:1}94%{transform:translateX(5px);opacity:.7}96%{transform:translateX(-3px);opacity:.9}98%{transform:translateX(0);opacity:0}}
+
+/* ring wrap */
+#lring-wrap{position:relative;width:160px;height:160px;margin-bottom:28px;}
+
+/* name */
+#loader-name{
+  font-family:'Orbitron',monospace;font-size:clamp(1.3rem,4vw,1.9rem);font-weight:900;
+  color:#fff;letter-spacing:.3em;text-transform:uppercase;text-align:center;
+  opacity:0;animation:lFadeUp .5s .15s forwards;
+  margin-bottom:6px;
+}
+#loader-name em{color:var(--cyan);font-style:normal;text-shadow:0 0 20px rgba(0,245,255,.5);}
+
+/* role */
+#loader-role{
+  font-family:'Share Tech Mono',monospace;font-size:.7rem;
+  color:var(--mag);letter-spacing:.35em;text-transform:uppercase;text-align:center;
+  opacity:0;animation:lFadeUp .5s .3s forwards;
+  margin-bottom:36px;
+}
+@keyframes lFadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* status rows */
+#loader-steps{
+  width:min(360px,85vw);display:flex;flex-direction:column;gap:6px;
+  margin-bottom:24px;
+  opacity:0;animation:lFadeUp .4s .45s forwards;
+}
+.lstep{
+  display:flex;align-items:center;gap:10px;
+  font-family:'Share Tech Mono',monospace;font-size:.63rem;letter-spacing:.1em;
+  color:rgba(140,180,220,.4);
+  padding:7px 14px;
+  border:1px solid rgba(0,245,255,.07);
+  background:rgba(0,245,255,.025);
+  transition:color .3s, border-color .3s, background .3s;
+}
+.lstep.active{color:var(--cyan);border-color:rgba(0,245,255,.25);background:rgba(0,245,255,.06);}
+.lstep.done{color:var(--green);border-color:rgba(57,255,20,.2);background:rgba(57,255,20,.04);}
+.lstep-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;transition:background .3s;}
+.lstep.active .lstep-dot{box-shadow:0 0 8px var(--cyan);animation:blink .5s infinite;}
+.lstep.done .lstep-dot{animation:none;box-shadow:0 0 8px var(--green);}
+.lstep-label{flex:1;}
+.lstep-val{font-size:.58rem;opacity:.8;}
+
+/* progress bar */
+#loader-bar-wrap{
+  width:min(360px,85vw);
+  opacity:0;animation:lFadeUp .4s .6s forwards;
+}
+#lbar-meta{display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:.6rem;color:rgba(140,180,220,.5);letter-spacing:.1em;margin-bottom:8px;}
+#lbar-pct{color:var(--cyan);}
+#lbar-track{height:3px;background:rgba(0,245,255,.08);position:relative;overflow:hidden;}
+#lbar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--purple,#9d4edd),var(--mag));background-size:200% 100%;animation:barShift 2s linear infinite;transition:width .12s linear;position:relative;}
+#lbar-fill::after{content:'';position:absolute;right:-1px;top:-2px;bottom:-2px;width:4px;background:white;border-radius:2px;box-shadow:0 0 10px var(--cyan),0 0 20px var(--cyan);opacity:.9;}
+@keyframes barShift{0%{background-position:0% 0}100%{background-position:200% 0}}
 
 </style>
 </head>
 <body>
+
+<!-- ====== PROGRESSIVE LOADER ====== -->
+<div id="loader">
+  <div id="loader-grid"></div>
+  <div id="loader-scan"></div>
+  <div id="loader-beam"></div>
+  <div id="loader-glow"></div>
+  <!-- corners -->
+  <div class="lc tl"></div><div class="lc tr"></div>
+  <div class="lc bl"></div><div class="lc br"></div>
+  <span class="lc-label tl">SYS::BOOT</span>
+  <span class="lc-label br">v2.0.26</span>
+
+  <div id="loader-inner">
+    <!-- spinning ring canvas -->
+    <div id="lring-wrap">
+      <canvas id="lring" width="160" height="160"></canvas>
+      <div id="loader-sym">&lt;/&gt;</div>
+    </div>
+
+    <div id="loader-name">ANMOL <em>KUMAR</em></div>
+    <div id="loader-role">Student · Developer · Builder</div>
+
+    <div id="loader-steps">
+      <div class="lstep" id="ls0"><span class="lstep-dot"></span><span class="lstep-label">Initialising modules</span><span class="lstep-val" id="lsv0"></span></div>
+      <div class="lstep" id="ls1"><span class="lstep-dot"></span><span class="lstep-label">Compiling assets</span><span class="lstep-val" id="lsv1"></span></div>
+      <div class="lstep" id="ls2"><span class="lstep-dot"></span><span class="lstep-label">Connecting Firebase</span><span class="lstep-val" id="lsv2"></span></div>
+      <div class="lstep" id="ls3"><span class="lstep-dot"></span><span class="lstep-label">Launching portfolio</span><span class="lstep-val" id="lsv3"></span></div>
+    </div>
+
+    <div id="loader-bar-wrap">
+      <div id="lbar-meta"><span>LOADING</span><span id="lbar-pct">0%</span></div>
+      <div id="lbar-track"><div id="lbar-fill"></div></div>
+    </div>
+  </div>
+</div>
 
 <div id="cur"></div>
 <div id="cur2"></div>
@@ -292,7 +489,7 @@ footer a{color:var(--cyan);text-decoration:none;}
     <div class="hero-tag"><span class="hero-tag-dot"></span>Available for opportunities</div>
     <h1 class="hero-greeting">
       <span class="hi">Hello, I'm</span>
-      <span class="hero-name">Anmol <span class="accent">Kumar</span></span>
+      <span class="hero-name">Anmol <span class="accent glitch" data-text="Kumar">Kumar</span></span>
     </h1>
     <div class="typed-wrap">
       <span class="typed-prefix">&gt; </span><span id="typed"></span><span class="cursor-typed"></span>
@@ -700,6 +897,132 @@ footer a{color:var(--cyan);text-decoration:none;}
 </div><!-- end .site -->
 
 <script>
+// ===== PROGRESSIVE LOADER =====
+(function(){
+  /* ── spinning ring on canvas ── */
+  const rc = document.getElementById('lring');
+  const rx = rc.getContext('2d');
+  const RW = 160, CX = 80, CY = 80, R = 68;
+  let angle = 0;
+
+  function drawRing(){
+    rx.clearRect(0,0,RW,RW);
+
+    // outer track
+    rx.beginPath();
+    rx.arc(CX,CY,R,0,Math.PI*2);
+    rx.strokeStyle='rgba(0,245,255,.1)';
+    rx.lineWidth=2;
+    rx.stroke();
+
+    // inner track
+    rx.beginPath();
+    rx.arc(CX,CY,R-14,0,Math.PI*2);
+    rx.strokeStyle='rgba(255,45,120,.08)';
+    rx.lineWidth=1;
+    rx.stroke();
+
+    // spinning arc — cyan
+    const g1=rx.createConicalGradient?null:null;
+    rx.beginPath();
+    rx.arc(CX,CY,R,angle,angle+Math.PI*1.4);
+    rx.strokeStyle='rgba(0,245,255,.9)';
+    rx.lineWidth=2.5;
+    rx.lineCap='round';
+    rx.stroke();
+
+    // spinning arc — magenta, opposite
+    rx.beginPath();
+    rx.arc(CX,CY,R-14,angle+Math.PI,angle+Math.PI*2.2);
+    rx.strokeStyle='rgba(255,45,120,.8)';
+    rx.lineWidth=2;
+    rx.lineCap='round';
+    rx.stroke();
+
+    // rotating dots on outer ring
+    for(let i=0;i<3;i++){
+      const a = angle + (i * Math.PI * 2/3);
+      const dx = CX + Math.cos(a)*R;
+      const dy = CY + Math.sin(a)*R;
+      rx.beginPath();
+      rx.arc(dx,dy,3,0,Math.PI*2);
+      rx.fillStyle = i===0 ? 'rgba(0,245,255,1)' : 'rgba(0,245,255,.3)';
+      rx.shadowColor='rgba(0,245,255,.8)';
+      rx.shadowBlur=8;
+      rx.fill();
+      rx.shadowBlur=0;
+    }
+
+    // center glow pulse
+    const pulse = 0.5+0.5*Math.sin(Date.now()/400);
+    const grd = rx.createRadialGradient(CX,CY,0,CX,CY,30);
+    grd.addColorStop(0,`rgba(0,245,255,${0.08*pulse})`);
+    grd.addColorStop(1,'transparent');
+    rx.beginPath();rx.arc(CX,CY,30,0,Math.PI*2);
+    rx.fillStyle=grd;rx.fill();
+
+    angle += 0.04;
+    if(!document.getElementById('loader').classList.contains('hide'))
+      requestAnimationFrame(drawRing);
+  }
+  drawRing();
+
+  /* ── progress logic ── */
+  const fill = document.getElementById('lbar-fill');
+  const pctEl = document.getElementById('lbar-pct');
+  let curPct = 0, rafId;
+
+  function animateTo(target, done){
+    cancelAnimationFrame(rafId);
+    function step(){
+      curPct = Math.min(curPct + 2, target);
+      fill.style.width = curPct+'%';
+      pctEl.textContent = curPct+'%';
+      if(curPct < target){ rafId = requestAnimationFrame(step); }
+      else { done && done(); }
+    }
+    rafId = requestAnimationFrame(step);
+  }
+
+  const steps = [
+    {id:0, val:'OK',   pct:30,  delay:0},
+    {id:1, val:'OK',   pct:58,  delay:280},
+    {id:2, val:'LIVE', pct:80,  delay:560},
+    {id:3, val:'READY',pct:100, delay:840},
+  ];
+
+  function runStep(i){
+    const s = steps[i];
+    setTimeout(()=>{
+      const el = document.getElementById('ls'+s.id);
+      const vl = document.getElementById('lsv'+s.id);
+      // activate current
+      el.classList.add('active');
+      // mark prev done
+      if(i>0){
+        document.getElementById('ls'+(i-1)).classList.remove('active');
+        document.getElementById('ls'+(i-1)).classList.add('done');
+        document.getElementById('lsv'+(i-1)).textContent = steps[i-1].val;
+      }
+      animateTo(s.pct, ()=>{
+        if(i < steps.length-1){
+          runStep(i+1);
+        } else {
+          // final: mark all done
+          el.classList.remove('active'); el.classList.add('done');
+          vl.textContent = s.val;
+          setTimeout(()=>{
+            document.getElementById('loader').classList.add('hide');
+          }, 300);
+        }
+      });
+    }, s.delay);
+  }
+
+  // small initial pause so fonts render
+  setTimeout(()=>runStep(0), 120);
+})();
+
 // ===== CURSOR =====
 const cur=document.getElementById('cur'),cur2=document.getElementById('cur2');
 let mx=0,my=0,cx=0,cy=0;
