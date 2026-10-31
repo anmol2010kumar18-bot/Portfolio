@@ -7,7 +7,7 @@
 <link rel="icon" type="image/png" href="https://avatars.githubusercontent.com/anmol2010kumar18-bot">
 <link rel="apple-touch-icon" href="https://avatars.githubusercontent.com/u/anmol2010kumar18-bot?v=4&s=180">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Dancing+Script:wght@500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
@@ -692,6 +692,18 @@ html.fx-shake.strong section,html.fx-shake.strong nav,html.fx-shake.strong foote
 .btn::after{content:'';position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-20deg);pointer-events:none;}
 .btn:hover::after{animation:btnShine .7s;}
 @keyframes btnShine{to{left:130%;}}
+
+/* ====== CURSIVE ACCENT FONTS (added) ====== */
+.hero-greeting .hi{font-family:'Great Vibes','Dancing Script',cursive;font-weight:400;font-size:.8em;letter-spacing:.02em;color:#d6e2ff;text-shadow:0 0 18px rgba(157,78,221,.7);margin-bottom:0;}
+.sec-eyebrow{font-family:'Dancing Script','Great Vibes',cursive;font-weight:600;font-size:1.55rem;letter-spacing:.02em;text-transform:none;line-height:1.2;}
+.sec-eyebrow::before{content:'✦';color:var(--mag);font-size:.9em;}
+.sk-name,.proj-name,.srv-name{font-family:'Dancing Script','Great Vibes',cursive;font-weight:700;letter-spacing:.01em;text-transform:none;}
+.sk-name{font-size:1.4rem;}
+.proj-name{font-size:1.75rem;}
+.srv-name{font-size:1.5rem;}
+footer{font-family:'Dancing Script','Great Vibes',cursive;font-size:1.05rem;letter-spacing:.03em;}
+
+#ib-cap{position:fixed;left:50%;bottom:12vh;transform:translateX(-50%);z-index:100005;pointer-events:none;font-family:'Dancing Script','Great Vibes',cursive;font-size:clamp(1.4rem,3.4vw,2.2rem);color:#fff;text-shadow:0 0 18px rgba(0,245,255,.8),0 2px 8px #000;text-align:center;max-width:90vw;}
 </style>
 </head>
 <body>
@@ -1753,7 +1765,7 @@ document.getElementById('ham').addEventListener('click',()=>{
   }
 
   /* Intro: ball hits the screen, glass breaks, voice greets */
-  const VOICE_FILE=''; // optional: put a recorded deep-voice mp3 path here, e.g. 'hello.mp3'
+  const VOICE_FILE='intro-voice.mp3'; // deep-voice greeting; replace with your own recording any time
   const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
   let seen=false;try{seen=sessionStorage.getItem('introSeen')==='1';}catch(_){}
   const L=document.getElementById('loader');
@@ -1762,15 +1774,43 @@ document.getElementById('ham').addEventListener('click',()=>{
   let voices=[];
   if('speechSynthesis' in window){const ld=()=>{voices=speechSynthesis.getVoices();};ld();speechSynthesis.onvoiceschanged=ld;}
 
-  function speak(){
-    if(VOICE_FILE){new Audio(VOICE_FILE).play().catch(()=>{});return;}
-    if(!('speechSynthesis' in window))return;
-    const u=new SpeechSynthesisUtterance('Hello. This is Anmol Kumar. A student developer.');
-    u.pitch=0;u.rate=.78;u.volume=1;u.lang='en-US';
+  const SAY='Hello, this is Anmol Kumar, a student developer. Welcome to my portfolio. Have a look at my work.';
+  let voiceEl=null,spoke=false,voiceGo=false;
+  function caption(){
+    if(spoke)return;spoke=true;
+    const c=document.createElement('div');c.id='ib-cap';c.textContent='Hello, this is Anmol Kumar — a student developer. Welcome to my portfolio!';
+    document.body.appendChild(c);
+    c.animate([{opacity:0,transform:'translate(-50%,12px)'},{opacity:1,transform:'translate(-50%,0)',offset:.15},{opacity:1,offset:.85},{opacity:0}],{duration:6000,fill:'forwards'}).onfinish=()=>c.remove();
+  }
+  function speakTTS(){
+    if(!('speechSynthesis' in window)){caption();return;}
+    voices=speechSynthesis.getVoices();               // re-read: the list may have loaded since the page opened
+    const u=new SpeechSynthesisUtterance(SAY);
+    u.pitch=.4;u.rate=.92;u.volume=1;u.lang='en-US';
     const en=voices.filter(v=>/^en/i.test(v.lang));
     const pick=en.find(v=>/male|david|daniel|alex|fred|mark|guy|george|james|rishi/i.test(v.name)&&!/female/i.test(v.name))||en[0];
     if(pick){u.voice=pick;u.lang=pick.lang;}
-    speechSynthesis.cancel();speechSynthesis.speak(u);
+    let started=false;
+    u.onstart=()=>{started=true;spoke=true;};
+    u.onerror=()=>{if(!started)caption();};
+    window.__ibUtterance=u;                           // keep a reference so the browser doesn't garbage-collect it mid-sentence
+    speechSynthesis.speak(u);
+    setTimeout(()=>{if(!started&&!spoke)caption();},2200);
+  }
+  function speak(){
+    if(voiceEl){
+      voiceGo=true;voiceEl.muted=false;if(voiceEl.currentTime>0&&!voiceEl.paused){spoke=true;return;}voiceEl.currentTime=0;
+      voiceEl.play().then(()=>{spoke=true;}).catch(speakTTS);
+    }else speakTTS();
+  }
+  /* run inside the tap so browsers (esp. iOS Safari) allow sound later */
+  function unlockSound(){
+    try{
+      voiceEl=new Audio(VOICE_FILE);voiceEl.preload='auto';voiceEl.muted=true;
+      voiceEl.addEventListener('error',()=>{voiceEl=null;},{once:true});
+      const pr=voiceEl.play();if(pr&&pr.then)pr.then(()=>{if(!voiceGo){voiceEl.pause();voiceEl.currentTime=0;}}).catch(()=>{});
+    }catch(_){voiceEl=null;}
+    try{if('speechSynthesis' in window){const w=new SpeechSynthesisUtterance(' ');w.volume=0;speechSynthesis.speak(w);}}catch(_){}
   }
   function crash(ac){
     const t=ac.currentTime,g=ac.createGain();g.connect(ac.destination);
@@ -1793,6 +1833,7 @@ document.getElementById('ham').addEventListener('click',()=>{
   }
 
   function play(gate){
+    unlockSound();
     gate.style.opacity=0;setTimeout(()=>gate.remove(),300);
     let ac=null;try{ac=new (window.AudioContext||window.webkitAudioContext)();}catch(_){}
     const W=innerWidth,H=innerHeight,cx=W/2,cy=H/2;
