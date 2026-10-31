@@ -704,6 +704,17 @@ html.fx-shake.strong section,html.fx-shake.strong nav,html.fx-shake.strong foote
 footer{font-family:'Dancing Script','Great Vibes',cursive;font-size:1.05rem;letter-spacing:.03em;}
 
 #ib-cap{position:fixed;left:50%;bottom:12vh;transform:translateX(-50%);z-index:100005;pointer-events:none;font-family:'Dancing Script','Great Vibes',cursive;font-size:clamp(1.4rem,3.4vw,2.2rem);color:#fff;text-shadow:0 0 18px rgba(0,245,255,.8),0 2px 8px #000;text-align:center;max-width:90vw;}
+
+/* ====== PHOTO WALK-IN (added) ====== */
+.av-walk{width:100%;height:100%;transform-origin:50% 100%;will-change:transform,filter,opacity;position:relative;}
+.av-pre .av-walk{opacity:0;}
+.avatar-placeholder{position:relative;}
+.avatar-placeholder .avatar-img{display:block;will-change:transform;}
+.avatar-placeholder .avatar-img.pose{position:absolute;inset:0;opacity:0;}
+.av-shadow{position:absolute;left:50%;bottom:3%;width:62%;height:9%;margin-left:-31%;border-radius:50%;background:radial-gradient(ellipse,rgba(0,0,0,.65),transparent 70%);opacity:0;pointer-events:none;z-index:2;}
+.av-ring{position:absolute;left:50%;bottom:5%;width:44px;height:14px;margin-left:-22px;border:2px solid var(--cyan);border-radius:50%;box-shadow:0 0 10px var(--cyan);pointer-events:none;z-index:3;opacity:0;}
+.av-flash{position:absolute;inset:-8px;border:2px solid var(--cyan);pointer-events:none;opacity:0;clip-path:polygon(10% 0%,90% 0%,100% 10%,100% 90%,90% 100%,10% 100%,0% 90%,0% 10%);}
+.avatar-frame{cursor:none;}
 </style>
 </head>
 <body>
@@ -2106,6 +2117,92 @@ document.getElementById('ham').addEventListener('click',()=>{
     name.addEventListener('click',()=>burst(true));
     (function loop(){setTimeout(()=>{if(!document.hidden&&scrollY<innerHeight*.7)burst(false);loop();},R(4500,8000));})();
   }
+})();
+</script>
+
+<script>
+/* ====== PHOTO WALK-IN (added): photo walks toward you, stops, settles into a pose ====== */
+(function(){
+  const frame=document.querySelector('.avatar-frame');if(!frame)return;
+  const ph=frame.querySelector('.avatar-placeholder'),img=ph&&ph.querySelector('img');if(!img)return;
+  const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;if(reduce)return;
+  const POSE_SRC='profile-crossed.jpeg'; // optional 2nd photo (arms crossed) – it fades in when the walk ends
+
+  const walk=document.createElement('div');walk.className='av-walk';
+  img.parentNode.insertBefore(walk,img);walk.appendChild(img);
+  const shadow=document.createElement('div');shadow.className='av-shadow';ph.appendChild(shadow);
+  const flash=document.createElement('div');flash.className='av-flash';frame.appendChild(flash);
+  let pose=null;
+  const t=new Image();t.onload=()=>{pose=document.createElement('img');pose.src=POSE_SRC;pose.alt='';pose.className='avatar-img pose';walk.appendChild(pose);};t.src=POSE_SRC;
+  ph.classList.add('av-pre');frame.title='Click to replay';
+
+  let playing=false,timers=[];
+  function play(){
+    if(playing)return;playing=true;
+    timers.forEach(clearTimeout);timers=[];
+    [walk,img,shadow,flash,pose].forEach(e=>e&&e.getAnimations().forEach(a=>a.cancel()));
+    if(pose)pose.style.opacity=0;
+    ph.classList.remove('av-pre');
+    const D=2600,N=6;
+
+    /* approach: from far away and blurry to full size */
+    walk.animate([
+      {transform:'translateY(16%) scale(.5)',filter:'blur(8px) brightness(.5)',opacity:0,offset:0},
+      {opacity:1,offset:.12},
+      {transform:'translateY(0) scale(1)',filter:'blur(0) brightness(1)',opacity:1,offset:1}
+    ],{duration:D,easing:'cubic-bezier(.35,.1,.5,1)',fill:'forwards'});
+
+    /* footsteps: bounce up, sway left/right, plant the foot */
+    const fr=[];
+    for(let i=0;i<=N;i++){
+      fr.push({offset:i/N,transform:'translate(0,0) rotate(0deg)',easing:'ease-out'});
+      if(i<N)fr.push({offset:(i+.5)/N,transform:'translate('+(i%2?1.8:-1.8)+'%,-3.4%) rotate('+(i%2?2.4:-2.4)+'deg)',easing:'ease-in'});
+    }
+    img.animate(fr,{duration:D});
+
+    /* ground shadow grows as it gets closer */
+    shadow.animate([{opacity:0,transform:'scale(.35)'},{opacity:.9,transform:'scale(1)'}],{duration:D,fill:'forwards',easing:'ease-out'});
+
+    /* a ring ripples out on every footfall */
+    for(let i=1;i<=N;i++){
+      timers.push(setTimeout(()=>{
+        const r=document.createElement('div');r.className='av-ring';ph.appendChild(r);
+        r.animate([{opacity:.75,transform:'scale(.3)'},{opacity:0,transform:'scale('+(2.2+i*.35)+')'}],{duration:650,easing:'ease-out'}).onfinish=()=>r.remove();
+      },i*D/N-80));
+    }
+
+    /* stop: settle with a little rebound, flash the frame */
+    timers.push(setTimeout(()=>{
+      walk.animate([
+        {transform:'scale(1) translateY(0)'},
+        {transform:'scale(1.045) translateY(2.5%)',offset:.35},
+        {transform:'scale(.992) translateY(-.6%)',offset:.7},
+        {transform:'scale(1) translateY(0)'}
+      ],{duration:650,easing:'ease-out'});
+      flash.animate([{opacity:.95,transform:'scale(1)'},{opacity:0,transform:'scale(1.12)'}],{duration:800,easing:'ease-out'});
+      frame.querySelectorAll('.avatar-corner').forEach(c=>c.animate([{transform:'scale(1)'},{transform:'scale(1.7)',filter:'drop-shadow(0 0 8px #00f5ff)'},{transform:'scale(1)'}],{duration:700}));
+      shadow.animate([{transform:'scale(1)'},{transform:'scale(1.12)'},{transform:'scale(1)'}],{duration:650});
+    },D));
+
+    /* optional pose swap (arms-crossed photo) */
+    timers.push(setTimeout(()=>{
+      if(pose)pose.animate([{opacity:0,filter:'brightness(1.8)'},{opacity:1,filter:'brightness(1)'}],{duration:550,fill:'forwards',easing:'ease-out'});
+    },D+450));
+
+    timers.push(setTimeout(()=>{playing=false;},D+1200));
+  }
+
+  /* start only once the section has actually faded in, so the whole walk is seen */
+  function whenVisible(){
+    const par=frame.closest('.reveal'),t0=performance.now();
+    (function chk(){
+      if(!par||parseFloat(getComputedStyle(par).opacity)>.75||performance.now()-t0>2500)setTimeout(play,150);
+      else requestAnimationFrame(chk);
+    })();
+  }
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){whenVisible();io.disconnect();}}),{threshold:.55});
+  io.observe(frame);
+  frame.addEventListener('click',play);
 })();
 </script>
 </body>
